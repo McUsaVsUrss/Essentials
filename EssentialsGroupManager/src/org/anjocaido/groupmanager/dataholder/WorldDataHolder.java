@@ -95,7 +95,6 @@ public class WorldDataHolder {
 	 * This should be called whenever a set of world data is fetched.
 	 */
 	public void updateDataSource() {
-
 		this.groups.setDataSource(this);
 		this.users.setDataSource(this);
 	}
@@ -108,28 +107,20 @@ public class WorldDataHolder {
 	 * @return class that manage that user permission
 	 */
 	public User getUser(String userId) {
-		
 		if (getUsers().containsKey(userId.toLowerCase())) {
 			return getUsers().get(userId.toLowerCase());
 		}
-		
 		// Legacy name matching
 		if (userId.length() < 36) {
-
 			// Search for a LastName match
 			for (User user : getUserList()) {
-				
-				if (user.getLastName().equalsIgnoreCase(userId)) {
+				if (user.getLastName() != null && user.getLastName().equalsIgnoreCase(userId)) {
 					return user;
 				}
 			}
-			
 		}
-		
 		// No user account found so create a new one.
-		User newUser = createUser(userId);
-		
-		return newUser;
+		return createUser(userId);
 	}
 	
 	/**
@@ -141,39 +132,26 @@ public class WorldDataHolder {
 	 * @return the user object for this player.
 	 */
 	public User getUser(String uUID, String currentName) {
-		
 		// Check for a UUID account
 		User user = getUsers().get(uUID.toLowerCase());
-		
 		if (user != null) {
-			
 			user.setLastName(currentName);
 			return user;
-			
 		}
-		
 		// Search for a LastName match
 		for (User usr : getUserList()) {
-			
-			if (usr.getLastName().equalsIgnoreCase(currentName) && usr.getUUID().equalsIgnoreCase(usr.getLastName())) {
-				
+			if (usr.getLastName() != null && usr.getUUID() != null && usr.getLastName().equalsIgnoreCase(currentName) && usr.getUUID().equalsIgnoreCase(usr.getLastName())) {
 				// Clone this user so we can set it's uUID
 				user = usr.clone(uUID, currentName);
-				
 				// Delete it and replace with the new clone.
 				this.removeUser(usr.getUUID());
 				this.addUser(user);
-				
 				return getUsers().get(uUID.toLowerCase());
 			}
-			
 		}
-			
-		
 		// No user account found so create a new one.
 		User newUser = createUser(uUID);
 		newUser.setLastName(currentName);
-		
 		return newUser;
 	}
 
